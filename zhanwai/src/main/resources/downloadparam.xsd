@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/downloadparam"
+	xmlns:tns="http://www.example.org/downloadparam" elementFormDefault="qualified">
+	<simpleType name="requestmethod">
+		<restriction base="string">
+			<enumeration value="GET"></enumeration>
+			<enumeration value="POST"></enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="urltype">
+		<restriction base="string">
+			<enumeration value="category"></enumeration>
+			<enumeration value="productlist"></enumeration>
+			<enumeration value="productdetail"></enumeration>
+		</restriction>
+	</simpleType>
+	<element name="client">
+		<complexType>
+			<sequence>
+				<element name="url" type="string" />
+				<element name="method" type="tns:requestmethod" />
+				<element name="user_agent" type="string"
+					default="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0" />
+				<element name="referer" type="string" />
+				<element name="paserclass" type="string"></element>
+				<element name="cookie" type="string" />
+				<element name="urltype" type="tns:urltype" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="clients">
+		<complexType>
+			<sequence>
+				<element ref="tns:client" />
+			</sequence>
+		</complexType>
+	</element>
+
+</schema>
