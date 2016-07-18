@@ -27,15 +27,11 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 	private List<Category> categories = new ArrayList<Category>();
 	@Autowired
 	public ProductListDownloader productListDownloader;
+	@Autowired
+	public HuiPinZheProductListParse huiPinZheProductListParse;
 
 	public HuiPinZheCategoryParse() {
 		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public List<? extends Object> parseResponse(CloseableHttpResponse res, Map<String, String> header) {
-		// TODO Auto-generated method stub
-		return super.parseResponse(res, header);
 	}
 
 	/**
@@ -83,8 +79,9 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 			downloadType.setUser_agent(header.get("user_agent"));
 			downloadType.setCookie(header.get("cookie"));
 			downloadType.setReferer(header.get("referer"));
+			System.out.println(downloadType.getUrl());
 			CloseableHttpResponse httpResponse = productListDownloader.parseBody(downloadType);
-			
+			huiPinZheProductListParse.startParse(httpResponse, header);
 		}
 		return productListDetails;
 	}

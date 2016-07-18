@@ -20,6 +20,10 @@ import com.tts.zhanwai.model.ProductListDetail;
 public class ProductListParse extends AbstractParse implements ParseHtml<ProductListDetail> {
 	private CloseableHttpResponse response;
 
+	public ProductListParse() {
+		super();
+	}
+
 	public ProductListParse(CloseableHttpResponse response) {
 		super();
 		this.response = response;
