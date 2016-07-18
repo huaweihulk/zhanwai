@@ -15,7 +15,7 @@ import com.tts.zhanwai.model.ProductListDetail;
 public class HuiPinZheProductListParse extends ProductListParse {
 	private static String UrlHeader = "http://www.huipinzhe.com";
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
-	
+
 	public HuiPinZheProductListParse() {
 		super();
 	}
@@ -44,7 +44,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 	}
 
 	public Matcher urlMatcher(String html) {
-		Pattern urlMatcher = Pattern.compile("href=\"/\\w+");
+		Pattern urlMatcher = Pattern.compile("href=\"/\\w+\\?\\w+=\\d+");
 		Matcher matcher = urlMatcher.matcher(html);
 		return matcher;
 	}
@@ -63,8 +63,12 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		Matcher urlMatcher = null;
 		while (pageMatcher.find()) {
 			page = pageMatcher.group(0);
+			System.out.println(page);
 			urlMatcher = urlMatcher(page);
-			String url = page.substring(urlMatcher.start(), urlMatcher.end());
+			if (urlMatcher.find()) {
+				String url = page.substring(urlMatcher.start() + 6, urlMatcher.end());
+				System.out.println(UrlHeader + url);
+			}
 		}
 		return super.parseHtmlBody(html);
 	}
