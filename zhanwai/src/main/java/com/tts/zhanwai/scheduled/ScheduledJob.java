@@ -17,7 +17,8 @@ public class ScheduledJob implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// TODO Auto-generated method stub
-		logger.info(new Date().toString());
+		logger.error(new Date().toString());
+		System.out.println(new Date().toString());
 	}
 
 }

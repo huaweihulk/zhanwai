@@ -28,14 +28,14 @@ public class ScheduledConfig {
 
 	@Bean(name = "cronTrigger")
 	public CronTrigger cronTrigger() {
-		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(cronString))
-				.build();
+		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity("zhanwaijob", "zhanwai")
+				.withSchedule(CronScheduleBuilder.cronSchedule(cronString)).build();
 		return cronTrigger;
 	}
 
 	@Bean(name = "jobDetail")
 	public JobDetail jobDetail() {
-		JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class).build();
+		JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class).withIdentity("zhanwaijob", "zhanwai").build();
 		return jobDetail;
 	}
 }
