@@ -17,7 +17,7 @@ import com.tts.zhanwai.model.Category;
 import com.tts.zhanwai.model.ProductListDetail;
 
 @Component
-public class CategoryParse extends AbstractParse implements ParseHtml<Category> {
+public class CategoryParse extends AbstractParse {
 	private CloseableHttpResponse response;
 
 	public CategoryParse() {
@@ -38,10 +38,9 @@ public class CategoryParse extends AbstractParse implements ParseHtml<Category> 
 	}
 
 	@Override
-	public List<? extends Object> parseResponse(CloseableHttpResponse res, Map<String, String> header) {
+	public String parseResponse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
 		this.response = res;
-		List<Category> category = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		for (Header hea : res.getAllHeaders()) {
 			if (!StringUtils.isEmpty(hea.getName()) && hea.equals("Set-Cookie")) {
@@ -60,6 +59,7 @@ public class CategoryParse extends AbstractParse implements ParseHtml<Category> 
 				String tmp = null;
 				while ((tmp = bufferedReader.readLine()) != null) {
 					builder.append(tmp);
+					builder.append("\n");
 				}
 			} catch (UnsupportedOperationException e) {
 				// TODO Auto-generated catch block
@@ -68,7 +68,6 @@ public class CategoryParse extends AbstractParse implements ParseHtml<Category> 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			category = parseHtmlBody(builder.toString());
 		}
 		try {
 			if (is != null) {
@@ -82,7 +81,7 @@ public class CategoryParse extends AbstractParse implements ParseHtml<Category> 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return category;
+		return stringBuilder.toString();
 	}
 
 	@Override
@@ -98,7 +97,8 @@ public class CategoryParse extends AbstractParse implements ParseHtml<Category> 
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		parseResponse(res, header);
+		String html = parseResponse(res, header);
+		parseHtmlBody(html);
 		startDownloadProductList(header);
 	}
 }

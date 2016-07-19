@@ -8,11 +8,11 @@ import com.tts.zhanwai.model.DownloadType;
 @Component
 public class SimpleDownloader extends AbstractDownloader {
 	public CloseableHttpResponse getHttpRespon(DownloadType downloadType) {
-		return parseBody(downloadType);
+		return startDownload(downloadType);
 	}
 
 	@Override
-	public CloseableHttpResponse parseBody(DownloadType downloadType) {
+	public CloseableHttpResponse startDownload(DownloadType downloadType) {
 		// TODO Auto-generated method stub
 		return productBody(downloadType);
 	}

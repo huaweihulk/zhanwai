@@ -66,5 +66,5 @@ public abstract class AbstractDownloader {
 		return response;
 	}
 
-	public abstract CloseableHttpResponse parseBody(DownloadType downloadType);
+	public abstract CloseableHttpResponse startDownload(DownloadType downloadType);
 }

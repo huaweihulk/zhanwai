@@ -17,7 +17,7 @@ import com.tts.zhanwai.model.Category;
 import com.tts.zhanwai.model.ProductListDetail;
 
 @Component
-public class ProductListParse extends AbstractParse implements ParseHtml<ProductListDetail> {
+public class ProductListParse extends AbstractParse {
 	private CloseableHttpResponse response;
 
 	public ProductListParse() {
@@ -38,10 +38,9 @@ public class ProductListParse extends AbstractParse implements ParseHtml<Product
 	}
 
 	@Override
-	public List<? extends Object> parseResponse(CloseableHttpResponse response, Map<String, String> header) {
+	public String parseResponse(CloseableHttpResponse response, Map<String, String> header) {
 		// TODO Auto-generated method stub
 		this.response = response;
-		List<ProductListDetail> details = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		for (Header hea : response.getAllHeaders()) {
 			if (!StringUtils.isEmpty(hea.getName()) && hea.equals("Set-Cookie")) {
@@ -60,6 +59,7 @@ public class ProductListParse extends AbstractParse implements ParseHtml<Product
 				String tmp = null;
 				while ((tmp = bufferedReader.readLine()) != null) {
 					builder.append(tmp);
+					builder.append("\n");
 				}
 			} catch (UnsupportedOperationException e) {
 				// TODO Auto-generated catch block
@@ -68,7 +68,6 @@ public class ProductListParse extends AbstractParse implements ParseHtml<Product
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			details = parseHtmlBody(builder.toString());
 		}
 		try {
 			if (is != null) {
@@ -82,13 +81,14 @@ public class ProductListParse extends AbstractParse implements ParseHtml<Product
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return details;
+		return stringBuilder.toString();
 	}
 
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		parseResponse(res, header);
+		String html = parseResponse(res, header);
+		parseHtmlBody(html);
 	}
 
 	@Override

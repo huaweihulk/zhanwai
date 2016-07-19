@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 import com.mysql.cj.mysqlx.protobuf.MysqlxCrud.Find;
 import com.tts.zhanwai.downloader.ProductListDownloader;
 import com.tts.zhanwai.model.DownloadType;
+import com.tts.zhanwai.model.Method;
 import com.tts.zhanwai.model.ProductListDetail;
+import com.tts.zhanwai.model.UrlType;
 import com.tts.zhanwai.utils.Constants;
 import com.tts.zhanwai.utils.LogUtils;
 
@@ -24,6 +26,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 	private static Logger logger = LogUtils.getLogger(HuiPinZheProductListParse.class);
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private String category;
+	private Map<String, String> header;
 	@Autowired
 	private ProductListDownloader productListDownloader;
 
@@ -53,7 +56,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 	public List<ProductListDetail> parseHtml(String html) {
 		List<ProductListDetail> details = new ArrayList<ProductListDetail>();
 		ProductListDetail detail = null;
-		String patterUrl = "<li class=\"h-goodsli id_stat_vc\"(\\w|\\s|-|=|\"|\\?|/|:|[\u4E00-\u9FA5]|\\.|!|_|%|\\&|\\^|\\*|\\$|(|)|;)+jpg\">";
+		String patterUrl = "<li class=\"h-goodsli id_stat_vc\".*";
 		Pattern pattern = Pattern.compile(patterUrl);
 		Matcher matcher = pattern.matcher(html);
 		int count = 0;
@@ -78,36 +81,31 @@ public class HuiPinZheProductListParse extends ProductListParse {
 				dataMatcher = dataPattern.matcher(data);
 				detail.setTitle(
 						dataMatcher.find() ? data.substring(dataMatcher.start() + 12, dataMatcher.end() - 1) : "");
-				// dataPattern =
-				// Pattern.compile("data-imgurl=\"(\\w|\\?|\\.|/|&|:|\\s|=|!)+\"");
 				dataPattern = Pattern.compile("data-imgurl=\".+\"");
 				dataMatcher = dataPattern.matcher(data);
 				detail.setPictureUrl(
 						dataMatcher.find() ? data.substring(dataMatcher.start() + 13, dataMatcher.end() - 1) : "");
 				details.add(detail);
+				count++;
 			}
-			count++;
 		}
-		logger.error("details count:{}", count);
+		logger.info("details count:{}", count);
 		count = 0;
-		pattern = Pattern.compile("<b>&yen;</b>\\s{0,}<em>([0-9]|\\.)+\\s{0,}</em>");
+		pattern = Pattern.compile("<b>&yen;</b>\\s<em>([0-9]|\\.)+<");
 		matcher = pattern.matcher(html);
-		matcher.find();
 		while (matcher.find()) {
-			count++;
 			String price = html.substring(matcher.start() + 17, matcher.end() - 1);
-			// details.get(count++).setnPrice(Float.valueOf(price));
+			details.get(count++).setnPrice(Float.valueOf(price));
 		}
-		logger.error("nPrice:{}", count);
+		logger.info("nPrice:{}", count);
 		count = 0;
-		pattern = Pattern.compile("<del>&yen;([0-9]|\\.)+</del>");
+		pattern = Pattern.compile("<del>&yen;([0-9]|\\.)+<");
 		matcher = pattern.matcher(html);
 		while (matcher.find()) {
 			String price = html.substring(matcher.start() + 10, matcher.end() - 1);
-			// details.get(count++).setoPrice(Float.valueOf(price));
-			count++;
+			details.get(count++).setoPrice(Float.valueOf(price));
 		}
-		logger.error("oPrice:{}", count);
+		logger.info("oPrice:{}", count);
 		count = 0;
 		return details;
 	}
@@ -124,12 +122,6 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		return matcher;
 	}
 
-	public Matcher detailMatcher(String html) {
-		Pattern pattern = Pattern.compile("<li class=\"h-goodsli id_stat_vc\"(\\w|\\s|-|=|\"|\\?|/|:|汉字|\\.|!)+jpg\"");
-		Matcher matcher = pattern.matcher(html);
-		return null;
-	}
-
 	@Override
 	public List<ProductListDetail> parseHtmlBody(String html) {
 		// TODO Auto-generated method stub
@@ -142,21 +134,30 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		Matcher pageMatcher = pageMatcher(html);
 		Matcher urlMatcher = null;
 		while (pageMatcher.find()) {
-			page = pageMatcher.group(0);
+			page = pageMatcher.group();
 			urlMatcher = urlMatcher(page);
 			if (urlMatcher.find()) {
 				String url = page.substring(urlMatcher.start() + 6, urlMatcher.end());
 				url = UrlHeader + url;
 				DownloadType downloadType = new DownloadType();
-				// productListDownloader.parseBody()
+				if (header != null) {
+					downloadType.setCookie(header.get(Constants.COOKIE));
+					downloadType.setMethod(Method.GET);
+					downloadType.setUrl(url);
+					downloadType.setUrlType(UrlType.PRODUCTLIST);
+					downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
+					downloadType.setReferer(header.get(Constants.REFERE));
+				}
+				CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
+				parseHtml(parseResponse(httpResponse, header));
 			}
 		}
-		return super.parseHtmlBody(html);
+		return this.productListDetails;
 	}
 
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		parseResponse(res, header);
+		super.startParse(res, header);
 	}
 }

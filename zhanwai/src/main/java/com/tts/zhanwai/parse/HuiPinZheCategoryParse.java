@@ -68,6 +68,9 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 		return categories;
 	}
 
+	/**
+	 * 开始从分类解析产品列表
+	 */
 	@Override
 	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
 		// TODO Auto-generated method stub
@@ -81,7 +84,7 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 			downloadType.setReferer(header.get("referer"));
 			System.out.println(downloadType.getUrl());
 			huiPinZheProductListParse.setCategory(category.getCategoryName());
-			CloseableHttpResponse httpResponse = productListDownloader.parseBody(downloadType);
+			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			huiPinZheProductListParse.startParse(httpResponse, header);
 		}
 		return productListDetails;
@@ -90,7 +93,6 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		parseResponse(res, header);
-		startDownloadProductList(header);
+		super.startParse(res, header);
 	}
 }

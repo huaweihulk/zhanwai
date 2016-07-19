@@ -65,7 +65,7 @@ public class StartJob {
 	public void startJob(DownloadType downloadType) throws ClassNotFoundException {
 		setDownloadType(downloadType);
 		initParam();
-		CloseableHttpResponse response = downloader.parseBody(downloadType);
+		CloseableHttpResponse response = downloader.startDownload(downloadType);
 		parse.startParse(response, downloader.header);
 	}
 }

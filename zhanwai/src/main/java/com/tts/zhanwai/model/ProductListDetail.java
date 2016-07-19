@@ -15,8 +15,8 @@ public class ProductListDetail implements Serializable {
 	private String shopType;// 商店类型，天猫，淘宝等
 	private String activity;// 站外显示活动
 	private String pictureUrl;// 图像地址
-	private String detailUrl;// 站外网内的地址
-	private String productUrl;// 天猫淘宝等地址
+	private String detailUrl;// 网站内的地址
+	private String productUrl;// 天猫淘宝山品地址
 	private String category;// 站外分类
 
 	public String getCategory() {

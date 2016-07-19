@@ -9,7 +9,7 @@ import com.tts.zhanwai.model.DownloadType;
 public class CategoryDownloader extends AbstractDownloader {
 
 	@Override
-	public CloseableHttpResponse parseBody(DownloadType downloadType) {
+	public CloseableHttpResponse startDownload(DownloadType downloadType) {
 		// TODO Auto-generated method stub
 		return productBody(downloadType);
 	}
