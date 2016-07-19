@@ -8,13 +8,24 @@ public class ProductListDetail implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String title;
-	private float oPrice;
-	private float nPrice;
-	private float sales;
-	private String shopType;
-	private String activity;
-	private String pictureUrl;
+	private String title;// 标题
+	private float oPrice;// 原价
+	private float nPrice;// 优惠价
+	private float sales;// 折扣
+	private String shopType;// 商店类型，天猫，淘宝等
+	private String activity;// 站外显示活动
+	private String pictureUrl;// 图像地址
+	private String detailUrl;// 站外网内的地址
+	private String productUrl;// 天猫淘宝等地址
+	private String category;// 站外分类
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
 
 	public String getTitle() {
 		return title;
@@ -94,7 +105,4 @@ public class ProductListDetail implements Serializable {
 	public void setProductUrl(String productUrl) {
 		this.productUrl = productUrl;
 	}
-
-	private String detailUrl;
-	private String productUrl;
 }

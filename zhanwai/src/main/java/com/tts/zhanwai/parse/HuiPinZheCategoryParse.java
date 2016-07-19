@@ -80,6 +80,7 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 			downloadType.setCookie(header.get("cookie"));
 			downloadType.setReferer(header.get("referer"));
 			System.out.println(downloadType.getUrl());
+			huiPinZheProductListParse.setCategory(category.getCategoryName());
 			CloseableHttpResponse httpResponse = productListDownloader.parseBody(downloadType);
 			huiPinZheProductListParse.startParse(httpResponse, header);
 		}
