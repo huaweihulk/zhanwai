@@ -93,6 +93,8 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		super.startParse(res, header);
+		String html = parseResponse(res, header);
+		parseHtmlBody(html);
+		startDownloadProductList(header);
 	}
 }

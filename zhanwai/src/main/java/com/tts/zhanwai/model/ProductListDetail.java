@@ -18,6 +18,15 @@ public class ProductListDetail implements Serializable {
 	private String detailUrl;// 网站内的地址
 	private String productUrl;// 天猫淘宝山品地址
 	private String category;// 站外分类
+	private long spid;
+
+	public long getSpid() {
+		return spid;
+	}
+
+	public void setSpid(long spid) {
+		this.spid = spid;
+	}
 
 	public String getCategory() {
 		return category;
@@ -87,7 +96,7 @@ public class ProductListDetail implements Serializable {
 	public String toString() {
 		return "ProductListDetail [title=" + title + ", oPrice=" + oPrice + ", nPrice=" + nPrice + ", sales=" + sales
 				+ ", shopType=" + shopType + ", activity=" + activity + ", pictureUrl=" + pictureUrl + ", detailUrl="
-				+ detailUrl + ", productUrl=" + productUrl + "]";
+				+ detailUrl + ", productUrl=" + productUrl + ", spid=" + spid + "]";
 	}
 
 	public String getDetailUrl() {

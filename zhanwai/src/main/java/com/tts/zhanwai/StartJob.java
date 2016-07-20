@@ -1,6 +1,7 @@
 package com.tts.zhanwai;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.ibatis.annotations.Case;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +54,9 @@ public class StartJob {
 				this.downloader = (AbstractDownloader) springBeanUtils
 						.getBean(Class.forName(downloaderClassPath + "CategoryDownloader"));
 				break;
+			case PRODUCTLIST:
+				this.downloader = (AbstractDownloader) springBeanUtils
+						.getBean(Class.forName(downloaderClassPath + "ProductListDownloader"));
 			default:
 				this.downloader = (AbstractDownloader) springBeanUtils
 						.getBean(Class.forName(downloaderClassPath + "CategoryDownloader"));

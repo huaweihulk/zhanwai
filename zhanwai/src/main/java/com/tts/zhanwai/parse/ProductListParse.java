@@ -41,47 +41,14 @@ public class ProductListParse extends AbstractParse {
 	public String parseResponse(CloseableHttpResponse response, Map<String, String> header) {
 		// TODO Auto-generated method stub
 		this.response = response;
-		StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder headerStringBuilder = new StringBuilder();
 		for (Header hea : response.getAllHeaders()) {
 			if (!StringUtils.isEmpty(hea.getName()) && hea.equals("Set-Cookie")) {
-				stringBuilder.append(hea.getValue());
+				headerStringBuilder.append(hea.getValue());
 			}
 		}
-		header.put("cookie", stringBuilder.toString());
-		HttpEntity entity = response.getEntity();
-		InputStream is = null;
-		BufferedReader bufferedReader = null;
-		StringBuilder builder = new StringBuilder();
-		if (entity != null) {
-			try {
-				is = entity.getContent();
-				bufferedReader = new BufferedReader(new InputStreamReader(is));
-				String tmp = null;
-				while ((tmp = bufferedReader.readLine()) != null) {
-					builder.append(tmp);
-					builder.append("\n");
-				}
-			} catch (UnsupportedOperationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		try {
-			if (is != null) {
-				is.close();
-			}
-			if (bufferedReader != null) {
-				bufferedReader.close();
-			}
-			response.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return stringBuilder.toString();
+		header.put("cookie", headerStringBuilder.toString());
+		return translateReponseHtml(response);
 	}
 
 	@Override
