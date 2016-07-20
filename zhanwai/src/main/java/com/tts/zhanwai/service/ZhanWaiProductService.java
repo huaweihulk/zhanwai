@@ -37,15 +37,19 @@ public class ZhanWaiProductService {
 	};
 
 	public void insertProductListDetails(List<ProductListDetail> productListDetails) {
-		List<ZhanWaiProduct> zhanWaiProducts = new ArrayList<ZhanWaiProduct>();
-		int size = productListDetails.size();
-		int start = 0;
-		while (start < size) {
-			if (start % 500 == 0) {
-				zhanWaiProductMapper.insertBatchZhanwaiProducts(zhanWaiProducts);
-				zhanWaiProducts.clear();
+		if (productListDetails != null && productListDetails.size() > 0) {
+			List<ZhanWaiProduct> zhanWaiProducts = new ArrayList<ZhanWaiProduct>();
+			int size = productListDetails.size();
+			int start = 1;
+			while (start < size) {
+				if (start % 500 == 0) {
+					zhanWaiProductMapper.insertBatchZhanwaiProducts(zhanWaiProducts);
+					zhanWaiProducts.clear();
+				}
+				zhanWaiProducts.add(zhanWaiProductTranslate(productListDetails.get(start - 1)));
+
 			}
-			zhanWaiProducts.add(zhanWaiProductTranslate(productListDetails.get(start)));
+			zhanWaiProductMapper.insertBatchZhanwaiProducts(zhanWaiProducts);
 		}
 	}
 
