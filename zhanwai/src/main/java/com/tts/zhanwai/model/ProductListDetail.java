@@ -18,7 +18,16 @@ public class ProductListDetail implements Serializable {
 	private String detailUrl;// 网站内的地址
 	private String productUrl;// 天猫淘宝山品地址
 	private String category;// 站外分类
-	private long spid;
+	private long spid;//产品ID
+	private String website;//产品的网站信息；
+	
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
 
 	public long getSpid() {
 		return spid;

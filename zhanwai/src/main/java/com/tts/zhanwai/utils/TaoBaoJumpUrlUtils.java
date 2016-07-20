@@ -7,8 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import com.tts.zhanwai.downloader.SimpleDownloader;
+import com.tts.zhanwai.parse.AbstractParse;
 
 public class TaoBaoJumpUrlUtils {
 	public static String transLateHtmlSpecialChars(String str) {

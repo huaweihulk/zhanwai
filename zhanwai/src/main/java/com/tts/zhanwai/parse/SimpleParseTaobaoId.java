@@ -47,4 +47,14 @@ public class SimpleParseTaobaoId {
 		// logger.error("taobaoId:{}", tmallId);
 		return tmallId;
 	}
+
+	public String parseHuiPinZheRedictTaoBaoId(String html) {
+		String result = "";
+		Pattern pattern = Pattern.compile("itemid=\"\\d+\"");
+		Matcher matcher = pattern.matcher(html);
+		if (matcher.find()) {
+			result = html.substring(matcher.start() + 8, matcher.end() - 1);
+		}
+		return result;
+	}
 }

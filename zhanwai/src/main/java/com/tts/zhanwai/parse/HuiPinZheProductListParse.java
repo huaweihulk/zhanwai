@@ -1,6 +1,7 @@
 package com.tts.zhanwai.parse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,6 +20,7 @@ import com.tts.zhanwai.model.DownloadType;
 import com.tts.zhanwai.model.Method;
 import com.tts.zhanwai.model.ProductListDetail;
 import com.tts.zhanwai.model.UrlType;
+import com.tts.zhanwai.service.ZhanWaiProductService;
 import com.tts.zhanwai.utils.Constants;
 import com.tts.zhanwai.utils.LogUtils;
 import com.tts.zhanwai.utils.TaoBaoJumpUrlUtils;
@@ -36,6 +38,8 @@ public class HuiPinZheProductListParse extends ProductListParse {
 	private SimpleDownloader simpleDownloader;
 	@Autowired
 	private SimpleParseTaobaoId simpleParseTaobaoId;
+	@Autowired
+	private ZhanWaiProductService zhanWaiProductService;
 
 	public String getCategory() {
 		return category;
@@ -96,20 +100,22 @@ public class HuiPinZheProductListParse extends ProductListParse {
 					dataMatcher = dataPattern.matcher(data_link);
 					if (dataMatcher.find()) {
 						detail.setSpid(Long.valueOf(data_link.substring(dataMatcher.start() + 4, dataMatcher.end())));
-					} else {
-						data_link = TaoBaoJumpUrlUtils.decodeUrl(data_link);
-						detail.setDetailUrl(data_link);
-						String id = null;
-						if (data_link.contains("taobao")) {
-							id = simpleParseTaobaoId.parseTaobaoId(
-									simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(data_link)));
-						} else if (data_link.contains("tmall")) {
-							id = simpleParseTaobaoId.parseTmallId(
-									simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(data_link)));
-						}
-						logger.info(data_link);
-						detail.setSpid(!StringUtils.isEmpty(id) ? Long.valueOf(id) : 0);
 					}
+					// } else {
+					// data_link = TaoBaoJumpUrlUtils.decodeUrl(data_link);
+					// detail.setDetailUrl(data_link);
+					// String id = null;
+					// if (data_link.contains("taobao")) {
+					// id = simpleParseTaobaoId.parseTaobaoId(
+					// simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(data_link)));
+					// } else if (data_link.contains("tmall")) {
+					// id = simpleParseTaobaoId.parseTmallId(
+					// simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(data_link)));
+					// }
+					// logger.info(data_link);
+					// detail.setSpid(!StringUtils.isEmpty(id) ?
+					// Long.valueOf(id) : 0);
+					// }
 				}
 				dataPattern = Pattern.compile("data-title=\"(\\w|[\u4E00-\u9FA5]|\\s)+\"");
 				dataMatcher = dataPattern.matcher(data);
@@ -148,6 +154,47 @@ public class HuiPinZheProductListParse extends ProductListParse {
 			details.get(count++).setDetailUrl(UrlHeader + "/p/detail?id=" + detailUrl);
 		}
 		logger.info("detailurl:{}", count);
+		count = 0;
+		Map<Integer, Integer> spidZero = new HashMap<Integer, Integer>();
+		for (int i = 0; i < details.size(); i++) {
+			if (details.get(i).getSpid() == 0L) {
+				spidZero.put(i, i);
+			}
+		}
+		pattern = Pattern.compile(
+				"<a class=\"id_stat_c\" href=\"(\\w|/)+\" target=\"_blank\" rel=\"nofollow\">[\u4E00-\u9FA5]+</a>");
+		matcher = pattern.matcher(html);
+		count = 0;
+		while (matcher.find()) {
+			if (spidZero.containsKey(count)) {
+				detail = details.get(spidZero.get(count));
+				String href = html.substring(matcher.start(), matcher.end());
+				Pattern tmpPattern = Pattern.compile("href=\"/.+/.+?\"");
+				Matcher tmpMatcher = tmpPattern.matcher(href);
+				if (tmpMatcher.find()) {
+					String redrictUrl = UrlHeader + href.substring(tmpMatcher.start() + 6, tmpMatcher.end() - 1);
+					// logger.error(redrictUrl);
+					if (detail.getProductUrl().contains("taobao")) {
+						String page = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
+						detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page)));
+						// logger.error(detail.getSpid() + "");
+					} else if (detail.getProductUrl().contains("tmall")) {
+						String page1 = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
+						detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page1)));
+					}
+					// logger.error(detail.getSpid() + "");
+				}
+			}
+			count++;
+		}
+		logger.info("redirect:{}", count);
+		// for (int i = 0; i < details.size(); i++) {
+		// if (details.get(i).getSpid() == 0L
+		// && (detail.getProductUrl().contains("taobao") ||
+		// detail.getProductUrl().contains("tmall"))) {
+		// logger.error(details.get(i).toString());
+		// }
+		// }
 		return details;
 	}
 
@@ -195,6 +242,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		}
 		for (ProductListDetail detail : productListDetails) {
 			detail.setSales((detail.getnPrice() * 10) / detail.getoPrice());
+			detail.setWebsite("www.huipinzhe.com");
 		}
 		return this.productListDetails;
 	}
@@ -205,6 +253,8 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		this.header = header;
 		String htmlBody = parseResponse(res, header);
 		productListDetails = parseHtmlBody(htmlBody);
-		logger.error(productListDetails.get(productListDetails.size() - 1).toString());
+		// logger.error(productListDetails.get(productListDetails.size() -
+		// 1).toString());
+		zhanWaiProductService.insertProductListDetails(productListDetails);
 	}
 }

@@ -64,14 +64,14 @@ public class ZhanWaiProduct implements Serializable {
 		this.price = price;
 	}
 
-	public Date getCtime() {
+	public String getCtime() {
 		return ctime;
 	}
 
-	public void setCtime(Date ctime) {
+	public void setCtime(String ctime) {
 		this.ctime = ctime;
 	}
 
 	private String price;
-	private Date ctime;
+	private String ctime;
 }
