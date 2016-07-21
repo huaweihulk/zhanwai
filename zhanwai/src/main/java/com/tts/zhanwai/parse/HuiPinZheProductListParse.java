@@ -58,113 +58,50 @@ public class HuiPinZheProductListParse extends ProductListParse {
 	@Override
 	public List<ProductListDetail> parseHtml(String html) {
 		List<ProductListDetail> details = new ArrayList<ProductListDetail>();
-		ProductListDetail detail = null;
-		String patterUrl = "<li class=\"h-goodsli id_stat_vc\".*";
-		Pattern pattern = Pattern.compile(patterUrl);
+		Pattern pattern = Pattern.compile("<li class=\"h-goodsli id_stat_vc\"[\\s\\S]+?(</li>)");
 		Matcher matcher = pattern.matcher(html);
-		int count = 0;
 		while (matcher.find()) {
-			String data = html.substring(matcher.start(), matcher.end());
-			// Pattern dataPattern =
-			// Pattern.compile("data-link=\"(\\w|\\?|\\.|/|&|:|\\s|=|\\+|-|;|')+\"");
-			Pattern dataPattern = Pattern.compile("data-link=\".+\"\\s");
-			Matcher dataMatcher = dataPattern.matcher(data);
-			String data_link = dataMatcher.find() ? data.substring(dataMatcher.start() + 11, dataMatcher.end() - 2)
-					: "";
-			if (!data_link.contains("activity")) {
-				detail = new ProductListDetail();
-				if (data_link.contains("taobao")) {
-					detail.setShopType(Constants.TMALL);
-				} else if (data_link.contains("tmall")) {
-					detail.setShopType(Constants.TAOBAO);
-				} else if (data_link.contains("jd.com")) {
-					detail.setShopType(Constants.JD);
-				} else if (data_link.contains("huipinzhe")) {
-					detail.setShopType(Constants.HUIPIZHE);
-				} else {
-					detail.setShopType(Constants.OTHERSHOP);
-				}
-				detail.setCategory(getCategoryName());
-				detail.setProductUrl(data_link);
-				// 解析淘宝id，有些链接是乱码
-				if (detail.getShopType().equals(Constants.TMALL) || detail.getShopType().equals(Constants.TAOBAO)) {
-					dataPattern = Pattern.compile("\\?id=\\d+");
-					dataMatcher = dataPattern.matcher(data_link);
-					if (dataMatcher.find()) {
-						detail.setSpid(Long.valueOf(data_link.substring(dataMatcher.start() + 4, dataMatcher.end())));
-					}
-				}
-				dataPattern = Pattern.compile("data-title=\"(\\w|[\u4E00-\u9FA5]|\\s)+\"");
-				dataMatcher = dataPattern.matcher(data);
-				detail.setTitle(
-						dataMatcher.find() ? data.substring(dataMatcher.start() + 12, dataMatcher.end() - 1) : "");
-				dataPattern = Pattern.compile("data-imgurl=\".+\"");
-				dataMatcher = dataPattern.matcher(data);
-				detail.setPictureUrl(
-						dataMatcher.find() ? data.substring(dataMatcher.start() + 13, dataMatcher.end() - 1) : "");
-				details.add(detail);
-				count++;
-			}
-		}
-		logger.info("details count:{}", count);
-		count = 0;
-		pattern = Pattern.compile("<b>&yen;</b>\\s<em>([0-9]|\\.)+<");
-		matcher = pattern.matcher(html);
-		while (matcher.find() && count < details.size()) {
-			String price = html.substring(matcher.start() + 17, matcher.end() - 1);
-			details.get(count++).setnPrice(Float.valueOf(price));
-		}
-		logger.info("nPrice:{}", count);
-		count = 0;
-		pattern = Pattern.compile("<del>&yen;([0-9]|\\.)+<");
-		matcher = pattern.matcher(html);
-		while (matcher.find() && count < details.size()) {
-			String price = html.substring(matcher.start() + 10, matcher.end() - 1);
-			details.get(count++).setoPrice(Float.valueOf(price));
-		}
-		logger.info("oPrice:{}", count);
-		count = 0;
-		pattern = Pattern.compile("<a class=\"gn id_stat_c\" href=\"/p/detail\\?id=\\d+\"");
-		matcher = pattern.matcher(html);
-		while (matcher.find() && count < details.size()) {
-			String detailUrl = html.substring(matcher.start() + 43, matcher.end() - 1);
-			details.get(count++).setDetailUrl(UrlHeader + "/p/detail?id=" + detailUrl);
-		}
-		logger.info("detailurl:{}", count);
-		count = 0;
-		Map<Integer, Integer> spidZero = new HashMap<Integer, Integer>();
-		for (int i = 0; i < details.size(); i++) {
-			if (details.get(i).getSpid() == 0L) {
-				spidZero.put(i, i);
-			}
-		}
-		pattern = Pattern.compile(
-				"<a class=\"id_stat_c\" href=\"(\\w|/)+\" target=\"_blank\" rel=\"nofollow\">[\u4E00-\u9FA5]+</a>");
-		matcher = pattern.matcher(html);
-		count = 0;
-		while (matcher.find()) {
-			if (spidZero.containsKey(count)) {
-				detail = details.get(spidZero.get(count));
-				String href = html.substring(matcher.start(), matcher.end());
-				Pattern tmpPattern = Pattern.compile("href=\"/.+/.+?\"");
-				Matcher tmpMatcher = tmpPattern.matcher(href);
+			ProductListDetail detail = new ProductListDetail();
+			String body = html.substring(matcher.start(), matcher.end());
+			Pattern tmpPattern = Pattern.compile("<b>&yen;</b>\\s<em>([0-9]|\\.)+<");
+			Matcher tmpMatcher = tmpPattern.matcher(body);
+			// 有最新的价格就表示不是活动等
+			if (tmpMatcher.find()) {
+				String price = body.substring(tmpMatcher.start() + 17, tmpMatcher.end() - 1);
+				detail.setnPrice(Float.valueOf(price));
+				tmpPattern = Pattern.compile("<a class=\"id_stat_c\" href=\"/redirect/\\d+\"");
+				tmpMatcher = tmpPattern.matcher(body);
 				if (tmpMatcher.find()) {
-					String redrictUrl = UrlHeader + href.substring(tmpMatcher.start() + 6, tmpMatcher.end() - 1);
-					// logger.error(redrictUrl);
-					if (detail.getProductUrl().contains("taobao")) {
-						String page = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
-						detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page)));
-						// logger.error(detail.getSpid() + "");
-					} else if (detail.getProductUrl().contains("tmall")) {
-						String page1 = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
-						detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page1)));
+					String detailUrl = body.substring(tmpMatcher.start() + 37, tmpMatcher.end() - 1);
+					detail.setDetailUrl(UrlHeader + "/redirect/" + detailUrl);
+				}
+
+				tmpPattern = Pattern.compile("data-link=\".+\"\\s");
+				tmpMatcher = tmpPattern.matcher(body);
+				String data_link = tmpMatcher.find() ? body.substring(tmpMatcher.start() + 11, tmpMatcher.end() - 2)
+						: "";
+				// 排除京东等干扰
+				if (data_link.contains("taobao") || data_link.contains("tmall")) {
+					tmpPattern = Pattern.compile("\\?id=\\d+");
+					tmpMatcher = tmpPattern.matcher(data_link);
+					if (tmpMatcher.find()) {
+						detail.setSpid(Long.valueOf(data_link.substring(tmpMatcher.start() + 4, tmpMatcher.end())));
+					} else {
+						String redrictUrl = detail.getDetailUrl();
+						// logger.info(redrictUrl);
+						if (data_link.contains("taobao")) {
+							String page = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
+							detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page)));
+						} else {
+							String page1 = simpleParseTaobaoId
+									.parseResponse(simpleDownloader.startDownload(redrictUrl));
+							detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page1)));
+						}
 					}
-					// logger.error(detail.getSpid() + "");
+					details.add(detail);
 				}
 			}
-			count++;
 		}
-		logger.info("redirect:{}", count);
 		return details;
 	}
 
@@ -217,6 +154,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 			detail.setSales((detail.getnPrice() * 10) / detail.getoPrice());
 			detail.setWebsite("www.huipinzhe.com");
 		}
+		logger.error(productListDetails.size() + "");
 		return this.productListDetails;
 	}
 
@@ -230,5 +168,6 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		// 1).toString());
 		// zhanWaiProductService.insertProductListDetails(productListDetails);
 		zhanWaiProductService.insertProductListDetails(productListDetails);
+		productListDetails.clear();
 	}
 }

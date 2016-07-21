@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <clients xmlns:xsi="http://www.w3.org/2001/XMLSchema"
 	xsi:noNamespaceSchemaLocation="downloadparam.xsd">
-	<client>
+ 	<client>
 		<url>http://www.huipinzhe.com/</url>
 		<referer>http://www.huipinzhe.com/</referer>
-		<!-- 只接受:GET,POST -->
+		只接受:GET,POST
 		<method>GET</method>
-		<!-- 只接受:category,productlist,productdetail -->
+		只接受:category,productlist,productdetail
 		<urltype>category</urltype>
 		<user_agent>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0</user_agent>
 		<cookie></cookie>
 		<paserclass>HuiPinZheCategoryParse</paserclass>
-	</client>
-	<client>
+	</client> 
+<!-- 	<client>
 		<url>http://www.zhe800.com/</url>
 		<referer>http://www.zhe800.com</referer>
-		<!-- 只接受:GET,POST -->
+		只接受:GET,POST
 		<method>GET</method>
-		<!-- 只接受:category,productlist,productdetail -->
+		只接受:category,productlist,productdetail
 		<urltype>category</urltype>
 		<user_agent>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0</user_agent>
 		<cookie></cookie>
-		<paserclass>ZheBaBaiProductListParse</paserclass>
-	</client>
+		<paserclass>ZheBaBaiCategoryParse</paserclass>
+	</client> -->
 </clients>

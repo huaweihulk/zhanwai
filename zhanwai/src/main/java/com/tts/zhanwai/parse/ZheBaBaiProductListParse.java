@@ -46,7 +46,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		Matcher matcher = idsPattern.matcher(html);
 		String ids = null;
 		if (matcher.find()) {
-			ids = html.substring(matcher.start() + 28, matcher.end() - 1);
+			ids = html.substring(matcher.start() + 28, matcher.end() - 3);
 		}
 		String jsUrl = "http://status.tuanimg.com/n/deal_service/json_new?deal_ids=" + ids;
 		String jsResult = AbstractParse.translateReponseHtml(simpleDownloader.startDownload(jsUrl));
@@ -101,6 +101,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		if (pageMatcher.find()) {
 			pageCount = Integer.valueOf(lastPageBody.substring(pageMatcher.start() + 1, pageMatcher.end() - 1));
 		}
+		logger.error("pageCount{}",pageCount);
 		for (int i = 2; i <= pageCount && header != null; i++) {
 			DownloadType downloadType = new DownloadType();
 			downloadType.setCookie(header.get(Constants.COOKIE));
@@ -109,6 +110,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			downloadType.setUrlType(UrlType.PRODUCTLIST);
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
+			logger.error(downloadType.getUrl());
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			List<ProductListDetail> tmProductListDetails = parseHtml(parseResponse(httpResponse, header));
 			productListDetails.addAll(tmProductListDetails);
@@ -123,8 +125,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		// TODO Auto-generated method stub
 		this.header = header;
 		String htmlBody = parseResponse(res, header);
-		logger.error(htmlBody);
 		productListDetails = parseHtmlBody(htmlBody);
-		zhanWaiProductService.insertProductListDetails(productListDetails);
+		// zhanWaiProductService.insertProductListDetails(productListDetails);
 	}
 }
