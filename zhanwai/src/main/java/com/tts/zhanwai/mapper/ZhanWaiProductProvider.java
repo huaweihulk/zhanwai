@@ -46,10 +46,10 @@ public class ZhanWaiProductProvider {
 			product = productListDetails.get(i);
 			sbuilder.append(product.getWebsite()).append(product.getSpid()).append(date);
 			sb.append("('" + MD5Utils.EncodeMd5Hex(date) + "','" + product.getWebsite() + "','" + product.getDetailUrl()
-					+ "','" + product.getSpid() + "','" + product.getnPrice() + "','" + date + "'),");
+					+ "','" + product.getSpid() + "','" + product.getnPrice() * 100 + "','" + date + "'),");
 		}
 		sb.deleteCharAt(sb.length() - 1);
-		//logger.info(sb.toString());
+		// logger.info(sb.toString());
 		return sb.toString();
 	}
 }

@@ -76,14 +76,9 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 		// TODO Auto-generated method stub
 		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 		for (Category category : categories) {
-			DownloadType downloadType = new DownloadType();
-			downloadType.setMethod(Method.GET);
-			downloadType.setUrl(category.getCategoryUrl());
-			downloadType.setUser_agent(header.get("user_agent"));
-			downloadType.setCookie(header.get("cookie"));
-			downloadType.setReferer(header.get("referer"));
-			System.out.println(downloadType.getUrl());
-			huiPinZheProductListParse.setCategory(category.getCategoryName());
+			DownloadType downloadType = productDownloadType(category, header);
+			logger.info(downloadType.getUrl());
+			huiPinZheProductListParse.setCategoryName(category.getCategoryName());
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			huiPinZheProductListParse.startParse(httpResponse, header);
 		}

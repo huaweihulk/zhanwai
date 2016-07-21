@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.tts.zhanwai.model.Category;
+import com.tts.zhanwai.model.DownloadType;
+import com.tts.zhanwai.model.Method;
 import com.tts.zhanwai.model.ProductListDetail;
 
 @Component
@@ -66,5 +68,15 @@ public class CategoryParse extends AbstractParse {
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
+	}
+
+	protected DownloadType productDownloadType(Category category, Map<String, String> header) {
+		DownloadType downloadType = new DownloadType();
+		downloadType.setMethod(Method.GET);
+		downloadType.setUrl(category.getCategoryUrl());
+		downloadType.setUser_agent(header.get("user_agent"));
+		downloadType.setCookie(header.get("cookie"));
+		downloadType.setReferer(header.get("referer"));
+		return downloadType;
 	}
 }
