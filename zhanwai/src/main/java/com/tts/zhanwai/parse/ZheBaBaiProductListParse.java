@@ -8,9 +8,11 @@ import java.util.regex.Pattern;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.xerces.impl.xpath.regex.Match;
+import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.tts.zhanwai.downloader.ProductListDownloader;
@@ -26,6 +28,8 @@ import com.tts.zhanwai.utils.LogUtils;
 @Component
 public class ZheBaBaiProductListParse extends ProductListParse {
 	private static String PAGEURL = "http://www.zhe800.com/ju_tag/taoxiangbao/page/";
+	private static String showTaoBaoOnly = "?taobao_only=1";
+	private static String website="www.zhe800.com";
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private static Logger logger = LogUtils.getLogger(ZheBaBaiProductListParse.class);
 	private Map<String, String> header;
@@ -49,6 +53,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			ids = html.substring(matcher.start() + 28, matcher.end() - 3);
 		}
 		String jsUrl = "http://status.tuanimg.com/n/deal_service/json_new?deal_ids=" + ids;
+		logger.info(jsUrl);
 		String jsResult = AbstractParse.translateReponseHtml(simpleDownloader.startDownload(jsUrl));
 		Pattern pattern = Pattern.compile("\"taobao_id\":\"\\d+");
 		matcher = pattern.matcher(jsResult);
@@ -58,6 +63,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			res = jsResult.substring(matcher.start() + 13, matcher.end());
 			ProductListDetail productListDetail = new ProductListDetail();
 			productListDetail.setSpid(Long.valueOf(res));
+			productListDetail.setWebsite(website);
 			productListDetails.add(productListDetail);
 		}
 		totalPage = productListDetails.size();
@@ -66,7 +72,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		matcher = pattern.matcher(jsResult);
 		while (matcher.find() && count < totalPage) {
 			res = jsResult.substring(matcher.start() + 7, matcher.end());
-			productListDetails.get(count++).setProductUrl(res);
+			productListDetails.get(count++).setDetailUrl(res);
 		}
 		pattern = Pattern.compile(",\"price\":\\d*");
 		count = 0;
@@ -92,21 +98,24 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		Pattern pagePattern = Pattern.compile("<a href=\".+?\".+?>\\d+</a>");
 		Matcher pageMatcher = pagePattern.matcher(html);
 		String lastPageBody = null;
+		int pageCount = 1;
 		while (pageMatcher.find()) {
 			lastPageBody = html.substring(pageMatcher.start(), pageMatcher.end());
 		}
-		pagePattern = Pattern.compile(">[0-9]*<");
-		pageMatcher = pagePattern.matcher(lastPageBody);
-		int pageCount = 0;
-		if (pageMatcher.find()) {
-			pageCount = Integer.valueOf(lastPageBody.substring(pageMatcher.start() + 1, pageMatcher.end() - 1));
+		if (!StringUtils.isEmpty(lastPageBody)) {
+			pagePattern = Pattern.compile(">[0-9]*<");
+			pageMatcher = pagePattern.matcher(lastPageBody);
+
+			if (pageMatcher.find()) {
+				pageCount = Integer.valueOf(lastPageBody.substring(pageMatcher.start() + 1, pageMatcher.end() - 1));
+			}
 		}
-		logger.error("pageCount{}",pageCount);
+		logger.error("pageCount{}", pageCount);
 		for (int i = 2; i <= pageCount && header != null; i++) {
 			DownloadType downloadType = new DownloadType();
 			downloadType.setCookie(header.get(Constants.COOKIE));
 			downloadType.setMethod(Method.GET);
-			downloadType.setUrl(PAGEURL + i);
+			downloadType.setUrl(PAGEURL + i + showTaoBaoOnly);
 			downloadType.setUrlType(UrlType.PRODUCTLIST);
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
@@ -126,6 +135,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 		this.header = header;
 		String htmlBody = parseResponse(res, header);
 		productListDetails = parseHtmlBody(htmlBody);
-		// zhanWaiProductService.insertProductListDetails(productListDetails);
+		zhanWaiProductService.insertProductListDetails(productListDetails);
+		productListDetails.clear();
 	}
 }

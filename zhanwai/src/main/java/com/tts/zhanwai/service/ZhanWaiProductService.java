@@ -40,9 +40,9 @@ public class ZhanWaiProductService {
 		if (productListDetails != null && productListDetails.size() > 0) {
 			int start = 0;
 			int max = productListDetails.size();
-			while (start + 500 < max) {
-				zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, start + 500);
-				start += 500;
+			while (start + 200 < max) {
+				zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, start + 200);
+				start += 200;
 			}
 			zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, max);
 		}
