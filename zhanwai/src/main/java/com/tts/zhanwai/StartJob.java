@@ -1,14 +1,18 @@
 package com.tts.zhanwai;
 
+import java.util.List;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.ibatis.annotations.Case;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.tts.zhanwai.downloader.AbstractDownloader;
 import com.tts.zhanwai.model.DownloadType;
 import com.tts.zhanwai.model.UrlType;
 import com.tts.zhanwai.parse.AbstractParse;
+import com.tts.zhanwai.utils.ClientParse;
 import com.tts.zhanwai.utils.SpringBeanUtils;
 
 @Component
@@ -65,6 +69,7 @@ public class StartJob {
 			this.parse = (AbstractParse) springBeanUtils.getBean(Class.forName(paserClassPath + parseclass));
 		}
 	}
+
 
 	public void startJob(DownloadType downloadType) throws ClassNotFoundException {
 		setDownloadType(downloadType);

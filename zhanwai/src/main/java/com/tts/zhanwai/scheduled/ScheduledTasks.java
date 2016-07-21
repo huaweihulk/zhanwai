@@ -24,8 +24,7 @@ public class ScheduledTasks {
 		try {
 			scheduler.scheduleJob(jobDetail, cronTrigger);
 			scheduler.start();
-			logger.error(cronTrigger.getNextFireTime().toString());
-			logger.error("scheduler:{}", scheduler.getSchedulerName());
+			logger.error("Next Start Job:{}", cronTrigger.getNextFireTime().toString());
 		} catch (SchedulerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

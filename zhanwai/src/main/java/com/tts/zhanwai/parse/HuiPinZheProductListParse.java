@@ -150,7 +150,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		pattern = Pattern.compile("<a class=\"gn id_stat_c\" href=\"/p/detail\\?id=\\d+\"");
 		matcher = pattern.matcher(html);
 		while (matcher.find()) {
-			String detailUrl = html.substring(matcher.start() + 43, matcher.end());
+			String detailUrl = html.substring(matcher.start() + 43, matcher.end() - 1);
 			details.get(count++).setDetailUrl(UrlHeader + "/p/detail?id=" + detailUrl);
 		}
 		logger.info("detailurl:{}", count);
@@ -255,6 +255,7 @@ public class HuiPinZheProductListParse extends ProductListParse {
 		productListDetails = parseHtmlBody(htmlBody);
 		// logger.error(productListDetails.get(productListDetails.size() -
 		// 1).toString());
+		// zhanWaiProductService.insertProductListDetails(productListDetails);
 		zhanWaiProductService.insertProductListDetails(productListDetails);
 	}
 }

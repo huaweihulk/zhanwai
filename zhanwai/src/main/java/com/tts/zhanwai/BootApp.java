@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.tts.zhanwai.downloader.SimpleDownloader;
 import com.tts.zhanwai.model.DownloadType;
@@ -19,23 +20,32 @@ import com.tts.zhanwai.utils.ClientParse;
 @EnableScheduling
 public class BootApp implements CommandLineRunner {
 	@Autowired
-	private StartJob startJob;
-	@Autowired
 	private ScheduledTasks scheduledTasks;
+	@Autowired
+	private StartJob startJob;
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		SpringApplication.run(BootApp.class, args);
 	}
 
-	@Override
-	public void run(String... arg0) throws Exception {
-		// TODO Auto-generated method stub
-		scheduledTasks.startScheduledTask();
+	// @Scheduled(cron = "0 */3 * * * ?")
+	@Scheduled(cron = "30 29 12 * * ?")
+	public void startTask() {
 		List<DownloadType> downloadTypes = ClientParse.parse();
 		for (DownloadType downloadType : downloadTypes) {
-			startJob.startJob(downloadType);
+			try {
+				startJob.startJob(downloadType);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+	}
+
+	@Override
+	public void run(String... arg0) throws Exception {
+		startTask();
 	}
 
 }
