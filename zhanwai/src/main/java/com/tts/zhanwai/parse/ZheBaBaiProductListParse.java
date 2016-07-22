@@ -27,9 +27,9 @@ import com.tts.zhanwai.utils.LogUtils;
 
 @Component
 public class ZheBaBaiProductListParse extends ProductListParse {
-	private static String PAGEURL = "http://www.zhe800.com/ju_tag/taoxiangbao/page/";
+	private static String PAGEURL = "/page/";
 	private static String showTaoBaoOnly = "?taobao_only=1";
-	private static String website="www.zhe800.com";
+	private static String website = "www.zhe800.com";
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private static Logger logger = LogUtils.getLogger(ZheBaBaiProductListParse.class);
 	private Map<String, String> header;
@@ -45,7 +45,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 	@Override
 	public List<ProductListDetail> parseHtml(String html) {
 		// TODO Auto-generated method stub
-		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
+		List<ProductListDetail> pageProductListDetails = new ArrayList<ProductListDetail>();
 		Pattern idsPattern = Pattern.compile("window.setDealIDs[\\s\\S]+?}");
 		Matcher matcher = idsPattern.matcher(html);
 		String ids = null;
@@ -53,35 +53,41 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			ids = html.substring(matcher.start() + 28, matcher.end() - 3);
 		}
 		String jsUrl = "http://status.tuanimg.com/n/deal_service/json_new?deal_ids=" + ids;
-		logger.info(jsUrl);
+		// logger.info(jsUrl);
 		String jsResult = AbstractParse.translateReponseHtml(simpleDownloader.startDownload(jsUrl));
-		Pattern pattern = Pattern.compile("\"taobao_id\":\"\\d+");
-		matcher = pattern.matcher(jsResult);
-		String res = null;
-		int totalPage = 0;
-		while (matcher.find()) {
-			res = jsResult.substring(matcher.start() + 13, matcher.end());
-			ProductListDetail productListDetail = new ProductListDetail();
-			productListDetail.setSpid(Long.valueOf(res));
-			productListDetail.setWebsite(website);
-			productListDetails.add(productListDetail);
+		Pattern patternall = Pattern.compile("\\{\"begin_time\"[\\S\\s]*?(\"title\")");
+		Matcher matcherall = patternall.matcher(jsResult);
+		while (matcherall.find()) {
+			ProductListDetail detail = new ProductListDetail();
+			detail.setWebsite(website);
+			String result = null;
+			String body = jsResult.substring(matcherall.start(), matcherall.end());
+			Pattern bodyPattern = Pattern.compile("\"taobao_id\":\"\\d+");
+			Matcher bodyMatcher = bodyPattern.matcher(body);
+			if (bodyMatcher.find()) {
+				result = body.substring(bodyMatcher.start() + 13, bodyMatcher.end());
+				detail.setSpid(Long.valueOf(result));
+			}
+			bodyPattern = Pattern.compile("\"url\":\"[\\s\\S]*?(\\?dealId)");
+			bodyMatcher = bodyPattern.matcher(body);
+			if (bodyMatcher.find()) {
+				result = body.substring(bodyMatcher.start() + 7, bodyMatcher.end() - 7);
+				detail.setDetailUrl(result);
+			} else {
+				detail.setDetailUrl("");
+			}
+			bodyPattern = Pattern.compile(",\"price\":[\\d|.]*");
+			bodyMatcher = bodyPattern.matcher(body);
+			if (bodyMatcher.find()) {
+				result = body.substring(bodyMatcher.start() + 9, bodyMatcher.end());
+				detail.setnPrice(Float.valueOf(result));
+			}
+			if (detail.getSpid() != 0) {
+				pageProductListDetails.add(detail);
+			}
 		}
-		totalPage = productListDetails.size();
-		int count = 0;
-		pattern = Pattern.compile("\"url\":\"[\\s\\S]*?url=");
-		matcher = pattern.matcher(jsResult);
-		while (matcher.find() && count < totalPage) {
-			res = jsResult.substring(matcher.start() + 7, matcher.end());
-			productListDetails.get(count++).setDetailUrl(res);
-		}
-		pattern = Pattern.compile(",\"price\":\\d*");
-		count = 0;
-		matcher = pattern.matcher(jsResult);
-		while (matcher.find() && count < totalPage) {
-			res = jsResult.substring(matcher.start() + 9, matcher.end());
-			productListDetails.get(count++).setnPrice(Integer.valueOf(res) * 100);
-		}
-		return productListDetails;
+		// logger.error("productListDetails:{}", pageProductListDetails.size());
+		return pageProductListDetails;
 	}
 
 	@Override
@@ -115,11 +121,14 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			DownloadType downloadType = new DownloadType();
 			downloadType.setCookie(header.get(Constants.COOKIE));
 			downloadType.setMethod(Method.GET);
-			downloadType.setUrl(PAGEURL + i + showTaoBaoOnly);
+			downloadType.setUrl(getCategory().getCategoryUrl() + PAGEURL + i + showTaoBaoOnly);
 			downloadType.setUrlType(UrlType.PRODUCTLIST);
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
-			logger.error(downloadType.getUrl());
+			// logger.error(downloadType.getUrl());
+			if (getCategory().getCategoryUrl().contains("ertong")) {
+				System.out.println("..");
+			}
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			List<ProductListDetail> tmProductListDetails = parseHtml(parseResponse(httpResponse, header));
 			productListDetails.addAll(tmProductListDetails);

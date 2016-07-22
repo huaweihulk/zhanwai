@@ -18,7 +18,8 @@ import com.tts.zhanwai.utils.MD5Utils;
 public class ZhanWaiProductService {
 	@Autowired
 	private ZhanWaiProductMapper zhanWaiProductMapper;
-	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static final int batchCount = 500;
 
 	private ZhanWaiProduct zhanWaiProductTranslate(ProductListDetail productListDetail) {
 		Date now = new Date();
@@ -40,9 +41,9 @@ public class ZhanWaiProductService {
 		if (productListDetails != null && productListDetails.size() > 0) {
 			int start = 0;
 			int max = productListDetails.size();
-			while (start + 200 < max) {
-				zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, start + 200);
-				start += 200;
+			while (start + batchCount < max) {
+				zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, start + batchCount);
+				start += batchCount;
 			}
 			zhanWaiProductMapper.insertBatchProductListDetails(productListDetails, start, max);
 		}

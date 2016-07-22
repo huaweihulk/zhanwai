@@ -47,6 +47,7 @@ public class ZheBaBaiCategoryParse extends CategoryParse {
 				categorymatcher = categoryPattern.matcher(urlString);
 				if (categorymatcher.find()) {
 					categoryUrl = urlString.substring(categorymatcher.start() + 9, categorymatcher.end() - 1);
+					logger.info(categoryUrl);
 				}
 				zheBaBaiCategories.add(new Category(categoryName, categoryUrl));
 			}
@@ -70,8 +71,8 @@ public class ZheBaBaiCategoryParse extends CategoryParse {
 		for (Category category : zheBaBaiCategories) {
 			DownloadType downloadType = productDownloadType(category, header);
 			downloadType.setUrl(downloadType.getUrl() + showTaoBaoOnly);
-			logger.info(downloadType.getUrl());
-			zheBaBaiProductListParse.setCategoryName(category.getCategoryName());
+			logger.error(downloadType.getUrl());
+			zheBaBaiProductListParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			zheBaBaiProductListParse.startParse(httpResponse, header);
 		}

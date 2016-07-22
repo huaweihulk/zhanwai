@@ -19,14 +19,14 @@ import com.tts.zhanwai.model.ProductListDetail;
 @Component
 public class ProductListParse extends AbstractParse {
 	private CloseableHttpResponse response;
-	private String categoryName;
-	
-	public String getCategoryName() {
-		return categoryName;
+	private Category category;
+
+	public Category getCategory() {
+		return category;
 	}
 
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 	public ProductListParse() {

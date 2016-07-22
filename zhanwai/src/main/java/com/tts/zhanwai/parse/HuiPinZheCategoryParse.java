@@ -78,7 +78,7 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 		for (Category category : categories) {
 			DownloadType downloadType = productDownloadType(category, header);
 			logger.info(downloadType.getUrl());
-			huiPinZheProductListParse.setCategoryName(category.getCategoryName());
+			huiPinZheProductListParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			huiPinZheProductListParse.startParse(httpResponse, header);
 		}
