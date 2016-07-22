@@ -20,10 +20,10 @@ import com.tts.zhanwai.utils.LogUtils;
 
 @Component
 public class FanLiCategoryParse extends CategoryParse {
-	private List<Category> aiTaoBaoCategories = new ArrayList<Category>();
+	private List<Category> fanLiCategories = new ArrayList<Category>();
 	private static Logger logger = LogUtils.getLogger(FanLiCategoryParse.class);
 	@Autowired
-	private ZheBaBaiProductListParse zheBaBaiProductListParse;
+	private FanLiProductListDetailParse fanLiProductListDetailParse;
 	@Autowired
 	private ProductListDownloader productListDownloader;
 
@@ -39,13 +39,13 @@ public class FanLiCategoryParse extends CategoryParse {
 	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
 		// TODO Auto-generated method stub
 		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
-		for (Category category : aiTaoBaoCategories) {
+		for (Category category : fanLiCategories) {
 			DownloadType downloadType = productDownloadType(category, header);
 			downloadType.setUrl(downloadType.getUrl());
 			logger.error(downloadType.getUrl());
-			zheBaBaiProductListParse.setCategory(category);
+			fanLiProductListDetailParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
-			zheBaBaiProductListParse.startParse(httpResponse, header);
+			fanLiProductListDetailParse.startParse(httpResponse, header);
 		}
 		return productListDetails;
 	}
@@ -63,7 +63,7 @@ public class FanLiCategoryParse extends CategoryParse {
 			Pattern bodyPattern = Pattern.compile("href=\"http.*?(\")");
 			Matcher bodyMatcher = bodyPattern.matcher(body);
 			if (bodyMatcher.find()) {
-				categoryUrl = body.substring(bodyMatcher.start() + 6, bodyMatcher.end() - 2);
+				categoryUrl = body.substring(bodyMatcher.start() + 6, bodyMatcher.end() - 1);
 			}
 			bodyPattern = Pattern.compile("[\u4E00-\u9FA5]+");
 			bodyMatcher = bodyPattern.matcher(body);
@@ -71,12 +71,12 @@ public class FanLiCategoryParse extends CategoryParse {
 				categoryName = body.substring(bodyMatcher.start(), bodyMatcher.end());
 			}
 			Category category = new Category(categoryName, categoryUrl);
-			if (!category.getCategoryName().contains("全部") || category.getCategoryName().contains("包邮")) {
-				aiTaoBaoCategories.add(category);
+			if (!category.getCategoryName().contains("全部") && !category.getCategoryName().contains("包邮")) {
+				fanLiCategories.add(category);
 			}
 		}
-		logger.info("aitaobao parse {} catogry", aiTaoBaoCategories.size());
-		return aiTaoBaoCategories;
+		logger.info("aitaobao parse {} catogry", fanLiCategories.size());
+		return fanLiCategories;
 	}
 
 }

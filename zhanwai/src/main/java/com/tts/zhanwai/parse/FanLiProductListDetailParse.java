@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
 
 import com.tts.zhanwai.downloader.ProductListDownloader;
 import com.tts.zhanwai.downloader.SimpleDownloader;
@@ -21,13 +21,13 @@ import com.tts.zhanwai.service.ZhanWaiProductService;
 import com.tts.zhanwai.utils.Constants;
 import com.tts.zhanwai.utils.LogUtils;
 
-@Cacheable
+@Component
 public class FanLiProductListDetailParse extends ProductListParse {
 	private String url = "http://9.fanli.com/?cid=3&p=18";
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
-	private static final String pageQuery = "&page=";
+	private static final String pageQuery = "&p=";
 	private Map<String, String> header;
-	private static final Logger loger = LogUtils.getLogger(FanLiProductListDetailParse.class);
+	private static final Logger logger = LogUtils.getLogger(FanLiProductListDetailParse.class);
 	@Autowired
 	private ProductListDownloader productListDownloader;
 	@Autowired
@@ -58,7 +58,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 				String spid = body.substring(bodyMatcher.start() + 5, bodyMatcher.end());
 				productListDetail.setSpid(Long.valueOf(spid));
 			}
-			bodyPatter = Pattern.compile("<strong>\\d*<em>(\\.)*\\d*</em></strong>");
+			bodyPatter = Pattern.compile("<strong>\\d*(<em>(\\.)*\\d*</em>)*</strong>");
 			bodyMatcher = bodyPatter.matcher(body);
 			if (bodyMatcher.find()) {
 				String price = body.substring(bodyMatcher.start(), bodyMatcher.end());
@@ -74,6 +74,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 				pageProductListDetails.add(productListDetail);
 			}
 		}
+		logger.info("pageProductListDetail{}", pageProductListDetails.size());
 		return pageProductListDetails;
 	}
 
@@ -97,7 +98,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 			downloadType.setUrlType(UrlType.PRODUCTLIST);
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
-			// logger.error(downloadType.getUrl());
+			logger.error(downloadType.getUrl());
 
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			html = parseResponse(httpResponse, header);
@@ -107,12 +108,17 @@ public class FanLiProductListDetailParse extends ProductListParse {
 			tmProductListDetails = null;
 			pageCount++;
 		}
+		logger.info("Total page{}", pageCount);
 		return productListDetails;
 	}
 
 	@Override
 	public void startParse(CloseableHttpResponse res, Map<String, String> header) {
 		// TODO Auto-generated method stub
-		super.startParse(res, header);
+		this.header = header;
+		String htmlBody = parseResponse(res, header);
+		productListDetails = parseHtmlBody(htmlBody);
+		zhanWaiProductService.insertProductListDetails(productListDetails);
+		productListDetails.clear();
 	}
 }
