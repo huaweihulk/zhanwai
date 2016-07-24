@@ -27,6 +27,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private static final String pageQuery = "&p=";
 	private Map<String, String> header;
+	private String website="http://www.9.fanli.com/";
 	private static final Logger logger = LogUtils.getLogger(FanLiProductListDetailParse.class);
 	@Autowired
 	private ProductListDownloader productListDownloader;
@@ -69,6 +70,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 					priceBuilder.append(price.substring(bodyMatcher.start(), bodyMatcher.end()));
 				}
 				productListDetail.setnPrice(Float.valueOf(priceBuilder.toString()));
+				productListDetail.setWebsite(website);
 			}
 			if (productListDetail.getSpid() != 0) {
 				pageProductListDetails.add(productListDetail);

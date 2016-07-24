@@ -2,6 +2,7 @@ package com.tts.zhanwai;
 
 import java.util.List;
 
+import org.apache.bcel.generic.NEW;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.ibatis.annotations.Case;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,41 @@ import com.tts.zhanwai.utils.SpringBeanUtils;
 
 @Component
 public class StartJob {
-	private AbstractDownloader downloader;
-	private AbstractParse parse;
+	// private AbstractDownloader downloader;
+	// private AbstractParse parse;
 	private DownloadType downloadType;
 	private static final String paserClassPath = "com.tts.zhanwai.parse.";
 	private static final String downloaderClassPath = "com.tts.zhanwai.downloader.";
+
+	class DownloaderParse {
+		private AbstractDownloader downloader;
+		private AbstractParse parse;
+
+		public DownloaderParse(AbstractDownloader downloader, AbstractParse parse) {
+			super();
+			this.downloader = downloader;
+			this.parse = parse;
+		}
+
+		public AbstractDownloader getDownloader() {
+			return downloader;
+		}
+
+		public void setDownloader(AbstractDownloader downloader) {
+			this.downloader = downloader;
+		}
+
+		public AbstractParse getParse() {
+			return parse;
+		}
+
+		public void setParse(AbstractParse parse) {
+			this.parse = parse;
+		}
+
+	}
+
+	ThreadLocal<DownloaderParse> downloaderParseThreadLocal = new ThreadLocal<StartJob.DownloaderParse>();
 	@Autowired
 	private SpringBeanUtils springBeanUtils;
 
@@ -33,48 +64,50 @@ public class StartJob {
 		this.downloadType = downloadType;
 	}
 
-	public AbstractDownloader getDownloader() {
-		return downloader;
-	}
+	// public AbstractDownloader getDownloader() {
+	// return downloader;
+	// }
+	//
+	// public void setDownloader(AbstractDownloader downloader) {
+	// this.downloader = downloader;
+	// }
+	//
+	// public AbstractParse getParse() {
+	// return parse;
+	// }
+	//
+	// public void setParse(AbstractParse parse) {
+	// this.parse = parse;
+	// }
 
-	public void setDownloader(AbstractDownloader downloader) {
-		this.downloader = downloader;
-	}
-
-	public AbstractParse getParse() {
-		return parse;
-	}
-
-	public void setParse(AbstractParse parse) {
-		this.parse = parse;
-	}
-
-	public void initParam() throws ClassNotFoundException {
+	public synchronized void initParam(DownloadType downloadType) throws ClassNotFoundException {
+		AbstractDownloader downloader = null;
+		AbstractParse parse = null;
 		if (downloadType != null) {
 			UrlType urlType = downloadType.getUrlType();
 			String parseclass = downloadType.getPaserclass();
 			switch (urlType) {
 			case CATEGORY:
-				this.downloader = (AbstractDownloader) springBeanUtils
+				downloader = (AbstractDownloader) springBeanUtils
 						.getBean(Class.forName(downloaderClassPath + "CategoryDownloader"));
 				break;
 			case PRODUCTLIST:
-				this.downloader = (AbstractDownloader) springBeanUtils
+				downloader = (AbstractDownloader) springBeanUtils
 						.getBean(Class.forName(downloaderClassPath + "ProductListDownloader"));
 			default:
-				this.downloader = (AbstractDownloader) springBeanUtils
+				downloader = (AbstractDownloader) springBeanUtils
 						.getBean(Class.forName(downloaderClassPath + "CategoryDownloader"));
 				break;
 			}
-			this.parse = (AbstractParse) springBeanUtils.getBean(Class.forName(paserClassPath + parseclass));
+			parse = (AbstractParse) springBeanUtils.getBean(Class.forName(paserClassPath + parseclass));
+			downloaderParseThreadLocal.set(new DownloaderParse(downloader, parse));
 		}
 	}
 
-
 	public void startJob(DownloadType downloadType) throws ClassNotFoundException {
-		setDownloadType(downloadType);
-		initParam();
-		CloseableHttpResponse response = downloader.startDownload(downloadType);
-		parse.startParse(response, downloader.header);
+		initParam(downloadType);
+		CloseableHttpResponse response = downloaderParseThreadLocal.get().getDownloader().startDownload(downloadType);
+		downloaderParseThreadLocal.get().getParse().startParse(response,
+				downloaderParseThreadLocal.get().getDownloader().header);
 	}
 }
