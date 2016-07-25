@@ -9,7 +9,7 @@ import com.tts.zhanwai.model.DownloadType;
 public class ProductListDownloader extends AbstractDownloader {
 
 	@Override
-	public CloseableHttpResponse startDownload(DownloadType downloadType) {
+	public synchronized CloseableHttpResponse startDownload(DownloadType downloadType) {
 		// TODO Auto-generated method stub
 		return productBody(downloadType);
 	}

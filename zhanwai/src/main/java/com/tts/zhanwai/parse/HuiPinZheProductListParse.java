@@ -28,6 +28,7 @@ import com.tts.zhanwai.utils.TaoBaoJumpUrlUtils;
 @Component
 public class HuiPinZheProductListParse extends ProductListParse {
 	private static String UrlHeader = "http://www.huipinzhe.com";
+	private static String Website = "www.huipinzhe.com";
 	private static Logger logger = LogUtils.getLogger(HuiPinZheProductListParse.class);
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private Map<String, String> header;
@@ -91,13 +92,19 @@ public class HuiPinZheProductListParse extends ProductListParse {
 						// logger.info(redrictUrl);
 						if (data_link.contains("taobao")) {
 							String page = simpleParseTaobaoId.parseResponse(simpleDownloader.startDownload(redrictUrl));
-							detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page)));
+							try {
+								detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page)));
+							} catch (Exception e) {
+								logger.error(page);
+								// TODO: handle exception
+							}
 						} else {
 							String page1 = simpleParseTaobaoId
 									.parseResponse(simpleDownloader.startDownload(redrictUrl));
 							detail.setSpid(Long.valueOf(simpleParseTaobaoId.parseHuiPinZheRedictTaoBaoId(page1)));
 						}
 					}
+					detail.setWebsite(Website);
 					details.add(detail);
 				}
 			}
@@ -150,11 +157,11 @@ public class HuiPinZheProductListParse extends ProductListParse {
 				tmProductListDetails = null;
 			}
 		}
-		for (ProductListDetail detail : productListDetails) {
-			detail.setSales((detail.getnPrice() * 10) / detail.getoPrice());
-			detail.setWebsite("www.huipinzhe.com");
-		}
-		logger.error(productListDetails.size() + "");
+		// for (ProductListDetail detail : productListDetails) {
+		// detail.setSales((detail.getnPrice() * 10) / detail.getoPrice());
+		// detail.setWebsite("www.huipinzhe.com");
+		// }
+		// logger.error(productListDetails.size() + "");
 		return this.productListDetails;
 	}
 

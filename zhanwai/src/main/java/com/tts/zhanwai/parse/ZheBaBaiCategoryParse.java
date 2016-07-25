@@ -47,12 +47,12 @@ public class ZheBaBaiCategoryParse extends CategoryParse {
 				categorymatcher = categoryPattern.matcher(urlString);
 				if (categorymatcher.find()) {
 					categoryUrl = urlString.substring(categorymatcher.start() + 9, categorymatcher.end() - 1);
-					logger.info(categoryUrl);
+					// slogger.info(categoryUrl);
 				}
 				zheBaBaiCategories.add(new Category(categoryName, categoryUrl));
 			}
 		}
-		logger.info("zhe800 parse {} catogry", zheBaBaiCategories.size());
+		// logger.info("zhe800 parse {} catogry", zheBaBaiCategories.size());
 		return zheBaBaiCategories;
 	}
 
@@ -65,17 +65,16 @@ public class ZheBaBaiCategoryParse extends CategoryParse {
 	}
 
 	@Override
-	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
+	public void startDownloadProductList(Map<String, String> header) {
 		// TODO Auto-generated method stub
-		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 		for (Category category : zheBaBaiCategories) {
 			DownloadType downloadType = productDownloadType(category, header);
 			downloadType.setUrl(downloadType.getUrl() + showTaoBaoOnly);
-			logger.error(downloadType.getUrl());
+			// logger.error(downloadType.getUrl());
 			zheBaBaiProductListParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			zheBaBaiProductListParse.startParse(httpResponse, header);
 		}
-		return productListDetails;
+		zheBaBaiCategories.clear();//必须清除，第二次调用的时候会重新整理类目，不清理可能会出现重复数据
 	}
 }

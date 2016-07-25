@@ -23,11 +23,10 @@ import com.tts.zhanwai.utils.LogUtils;
 
 @Component
 public class FanLiProductListDetailParse extends ProductListParse {
-	private String url = "http://9.fanli.com/?cid=3&p=18";
 	private List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 	private static final String pageQuery = "&p=";
 	private Map<String, String> header;
-	private String website="http://www.9.fanli.com/";
+	private String website="www.9.fanli.com";
 	private static final Logger logger = LogUtils.getLogger(FanLiProductListDetailParse.class);
 	@Autowired
 	private ProductListDownloader productListDownloader;
@@ -76,7 +75,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 				pageProductListDetails.add(productListDetail);
 			}
 		}
-		logger.info("pageProductListDetail{}", pageProductListDetails.size());
+		//logger.info("pageProductListDetail{}", pageProductListDetails.size());
 		return pageProductListDetails;
 	}
 
@@ -100,7 +99,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 			downloadType.setUrlType(UrlType.PRODUCTLIST);
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
-			logger.error(downloadType.getUrl());
+			//logger.error(downloadType.getUrl());
 
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			html = parseResponse(httpResponse, header);
@@ -110,7 +109,7 @@ public class FanLiProductListDetailParse extends ProductListParse {
 			tmProductListDetails = null;
 			pageCount++;
 		}
-		logger.info("Total page{}", pageCount);
+		//logger.info("Total page{}", pageCount);
 		return productListDetails;
 	}
 

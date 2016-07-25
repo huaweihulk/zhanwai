@@ -116,7 +116,7 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 				pageCount = Integer.valueOf(lastPageBody.substring(pageMatcher.start() + 1, pageMatcher.end() - 1));
 			}
 		}
-		logger.error("pageCount{}", pageCount);
+		// logger.error("pageCount{}", pageCount);
 		for (int i = 2; i <= pageCount && header != null; i++) {
 			DownloadType downloadType = new DownloadType();
 			downloadType.setCookie(header.get(Constants.COOKIE));
@@ -126,9 +126,6 @@ public class ZheBaBaiProductListParse extends ProductListParse {
 			downloadType.setUser_agent(header.get(Constants.USER_AGETNT));
 			downloadType.setReferer(header.get(Constants.REFERE));
 			// logger.error(downloadType.getUrl());
-			if (getCategory().getCategoryUrl().contains("ertong")) {
-				System.out.println("..");
-			}
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			List<ProductListDetail> tmProductListDetails = parseHtml(parseResponse(httpResponse, header));
 			productListDetails.addAll(tmProductListDetails);

@@ -9,17 +9,17 @@ import com.tts.zhanwai.utils.Constants;
 
 @Component
 public class SimpleDownloader extends AbstractDownloader {
-	public CloseableHttpResponse getHttpRespon(DownloadType downloadType) {
+	public synchronized CloseableHttpResponse getHttpRespon(DownloadType downloadType) {
 		return startDownload(downloadType);
 	}
 
 	@Override
-	public CloseableHttpResponse startDownload(DownloadType downloadType) {
+	public synchronized CloseableHttpResponse startDownload(DownloadType downloadType) {
 		// TODO Auto-generated method stub
 		return productBody(downloadType);
 	}
 
-	public CloseableHttpResponse startDownload(String url) {
+	public synchronized CloseableHttpResponse startDownload(String url) {
 		DownloadType downloadType = new DownloadType();
 		downloadType.setMethod(Method.GET);
 		downloadType.setUrl(url);

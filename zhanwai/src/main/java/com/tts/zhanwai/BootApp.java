@@ -33,7 +33,7 @@ public class BootApp implements CommandLineRunner {
 		SpringApplication.run(BootApp.class, args);
 	}
 
-	// @Scheduled(cron = "0 */3 * * * ?")
+	@Scheduled(cron = "0 */5 * * * ?")
 	// @Scheduled(cron = "0 18 21 * * ?")
 	public void startTask() {
 		List<DownloadType> downloadTypes = ClientParse.parse();
@@ -51,7 +51,7 @@ public class BootApp implements CommandLineRunner {
 
 	@Override
 	public void run(String... arg0) throws Exception {
-		startTask();
+		//startTask();
 	}
 
 }

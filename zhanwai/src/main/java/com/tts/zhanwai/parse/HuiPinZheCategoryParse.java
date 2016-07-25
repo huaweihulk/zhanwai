@@ -72,17 +72,16 @@ public class HuiPinZheCategoryParse extends CategoryParse {
 	 * 开始从分类解析产品列表
 	 */
 	@Override
-	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
+	public void startDownloadProductList(Map<String, String> header) {
 		// TODO Auto-generated method stub
-		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 		for (Category category : categories) {
 			DownloadType downloadType = productDownloadType(category, header);
-			logger.info(downloadType.getUrl());
+			// logger.info(downloadType.getUrl());
 			huiPinZheProductListParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			huiPinZheProductListParse.startParse(httpResponse, header);
 		}
-		return productListDetails;
+		categories.clear();
 	}
 
 	@Override

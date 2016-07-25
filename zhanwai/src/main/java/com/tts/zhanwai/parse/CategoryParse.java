@@ -61,8 +61,7 @@ public class CategoryParse extends AbstractParse {
 		return null;
 	}
 
-	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
-		return null;
+	public void startDownloadProductList(Map<String, String> header) {
 	}
 
 	@Override

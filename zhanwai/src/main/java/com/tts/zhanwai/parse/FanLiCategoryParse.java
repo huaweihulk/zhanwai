@@ -36,18 +36,17 @@ public class FanLiCategoryParse extends CategoryParse {
 	}
 
 	@Override
-	public List<ProductListDetail> startDownloadProductList(Map<String, String> header) {
+	public void startDownloadProductList(Map<String, String> header) {
 		// TODO Auto-generated method stub
-		List<ProductListDetail> productListDetails = new ArrayList<ProductListDetail>();
 		for (Category category : fanLiCategories) {
 			DownloadType downloadType = productDownloadType(category, header);
 			downloadType.setUrl(downloadType.getUrl());
-			logger.error(downloadType.getUrl());
+			// logger.error(downloadType.getUrl());
 			fanLiProductListDetailParse.setCategory(category);
 			CloseableHttpResponse httpResponse = productListDownloader.startDownload(downloadType);
 			fanLiProductListDetailParse.startParse(httpResponse, header);
 		}
-		return productListDetails;
+		fanLiCategories.clear();
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class FanLiCategoryParse extends CategoryParse {
 				fanLiCategories.add(category);
 			}
 		}
-		logger.info("aitaobao parse {} catogry", fanLiCategories.size());
+		// logger.info("fanli parse {} catogry", fanLiCategories.size());
 		return fanLiCategories;
 	}
 
