@@ -37,4 +37,16 @@ public class Category implements Serializable {
 		return "Category [categoryName=" + categoryName + ", categoryUrl=" + categoryUrl + "]";
 	};
 
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		if (obj == null || !(obj instanceof Category)) {
+			return false;
+		}
+		if (((Category) obj).getCategoryName() == null || ((Category) obj).getCategoryUrl() == null) {
+			return false;
+		}
+		return this.categoryName.equals(((Category) obj).getCategoryName())
+				&& this.categoryUrl.equals(((Category) obj).getCategoryUrl());
+	}
 }

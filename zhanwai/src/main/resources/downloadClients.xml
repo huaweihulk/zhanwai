@@ -9,7 +9,7 @@
 		<user_agent>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0</user_agent>
 		<cookie></cookie>
 		<paserclass>HuiPinZheCategoryParse</paserclass>
-	</client> 
+	</client>
 	<client>
 		<url>http://www.zhe800.com/</url>
 		<referer>http://www.zhe800.com</referer>
@@ -19,7 +19,7 @@
 		<cookie></cookie>
 		<paserclass>ZheBaBaiCategoryParse</paserclass>
 	</client>
- 	<client>
+	<client>
 		<url>http://www.fanli.com/</url>
 		<referer>http://www.fanli.com/</referer>
 		<method>GET</method>
@@ -27,5 +27,14 @@
 		<user_agent>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0</user_agent>
 		<cookie></cookie>
 		<paserclass>FanLiCategoryParse</paserclass>
-	</client> 
+	</client>
+	<client>
+		<url>https://ju.taobao.com/</url>
+		<referer>https://ju.taobao.com/</referer>
+		<method>GET</method>
+		<urltype>category</urltype>
+		<user_agent>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0</user_agent>
+		<cookie></cookie>
+		<paserclass>JuHuaSuanCategoryParse</paserclass>
+	</client>
 </clients>

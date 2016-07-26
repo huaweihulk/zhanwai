@@ -33,20 +33,20 @@ public class BootApp implements CommandLineRunner {
 		SpringApplication.run(BootApp.class, args);
 	}
 
-	@Scheduled(cron = "0 */5 * * * ?")
-	// @Scheduled(cron = "0 18 21 * * ?")
+	// @Scheduled(cron = "0 */5 * * * ?")
+	@Scheduled(cron = "0 */30 * * * ?")
 	public void startTask() {
 		List<DownloadType> downloadTypes = ClientParse.parse();
-		 taskExecuter.init();
-		 taskExecuter.executThreads(downloadTypes);
-//		for (DownloadType downloadType : downloadTypes) {
-//			try {
-//				startJob.startJob(downloadType);
-//			} catch (ClassNotFoundException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+		taskExecuter.init();
+		taskExecuter.executThreads(downloadTypes);
+		// for (DownloadType downloadType : downloadTypes) {
+		// try {
+		// startJob.startJob(downloadType);
+		// } catch (ClassNotFoundException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
 	}
 
 	@Override
